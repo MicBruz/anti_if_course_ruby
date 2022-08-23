@@ -1,7 +1,7 @@
-require File.join(File.dirname(__FILE__), 'gilded_rose')
-require 'test/unit'
+require File.join(File.dirname(__FILE__), 'test_helper')
+require File.join(File.dirname(__FILE__), '../gilded_rose')
 
-class TestUntitled < Test::Unit::TestCase
+class TestUntitled < Minitest::Test
   def test_report
     report_lines = []
     items = [
