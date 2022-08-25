@@ -4,54 +4,37 @@ class GildedRose
     @items = items
   end
 
-  def update_quality()
+  def update_quality
     @items.each do |item|
       if sulfuras?(item)
-        if item.quality > 0
-          if !sulfuras?(item)
-            decrease_quality(item)
-          end
-        end
       elsif generic?(item)
         if item.quality > 0
-          if !sulfuras?(item)
-            decrease_quality(item)
-          end
+          decrease_quality(item)
         end
-      else
+        item.sell_in = item.sell_in - 1
+      elsif aged_brie?(item)
         if quality_less_than_50?(item)
           increase_quality(item)
-          if backstage_pass?(item)
-            if item.sell_in < 11
-              if quality_less_than_50?(item)
-                increase_quality(item)
-              end
-            end
-            if item.sell_in < 6
-              if quality_less_than_50?(item)
-                increase_quality(item)
-              end
-            end
-          end
         end
-      end
-      if !sulfuras?(item)
         item.sell_in = item.sell_in - 1
+      elsif backstage_pass?(item)
+        handle_backstage_pass(item)
       end
-      if item.sell_in < 0
-        if !aged_brie?(item)
-          if !backstage_pass?(item)
-            if item.quality > 0
-              if !sulfuras?(item)
-                decrease_quality(item)
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
-        else
+      if aged_brie?(item)
+        if item.sell_in < 0
           if quality_less_than_50?(item)
             increase_quality(item)
+          end
+        end
+      elsif backstage_pass?(item)
+        if item.sell_in < 0
+          item.quality = item.quality - item.quality
+        end
+      elsif sulfuras?(item)
+      elsif generic?(item)
+        if item.sell_in < 0
+          if item.quality > 0
+            decrease_quality(item)
           end
         end
       end
@@ -59,6 +42,23 @@ class GildedRose
   end
 
   private
+
+  def handle_backstage_pass(item)
+    if quality_less_than_50?(item)
+      increase_quality(item)
+      if item.sell_in < 11
+        if quality_less_than_50?(item)
+          increase_quality(item)
+        end
+      end
+      if item.sell_in < 6
+        if quality_less_than_50?(item)
+          increase_quality(item)
+        end
+      end
+    end
+    item.sell_in = item.sell_in - 1
+  end
 
   def generic?(item)
     ! (sulfuras?(item) || backstage_pass?(item) || aged_brie?(item))
@@ -98,7 +98,7 @@ class Item
     @quality = quality
   end
 
-  def to_s()
+  def to_s
     "#{@name}, #{@sell_in}, #{@quality}"
   end
 end
